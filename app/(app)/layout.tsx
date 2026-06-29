@@ -8,16 +8,32 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!user) redirect('/')
 
+  const { data: persona } = await supabase
+    .from('personas')
+    .select('display_name')
+    .eq('user_id', user.id)
+    .single()
+
+  const initials = (persona?.display_name ?? user.email ?? 'U')
+    .split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
+
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-2 font-bold text-orange-500 text-lg">
-          🍽️ Plotluck
+        <Link href="/dashboard" className="text-xl font-black tracking-tight text-gray-900">
+          outv<span className="text-orange-500">go</span>
         </Link>
-        <div className="flex items-center gap-4">
-          <Link href="/persona" className="text-sm text-gray-600 hover:text-gray-900">My Persona</Link>
+        <div className="flex items-center gap-5">
+          <Link href="/dashboard" className="text-sm text-gray-600 hover:text-gray-900">Sessions</Link>
+          <Link href="/persona" className="text-sm text-gray-600 hover:text-gray-900">My Profile</Link>
           <form action="/api/auth/signout" method="POST">
-            <button type="submit" className="text-sm text-gray-600 hover:text-gray-900">Sign out</button>
+            <button
+              type="submit"
+              className="w-8 h-8 rounded-full bg-orange-100 text-orange-700 text-xs font-bold flex items-center justify-center hover:bg-orange-200 transition-colors"
+              title="Sign out"
+            >
+              {initials}
+            </button>
           </form>
         </div>
       </nav>

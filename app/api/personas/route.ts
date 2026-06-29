@@ -4,12 +4,16 @@ import { z } from 'zod'
 
 const Schema = z.object({
   display_name: z.string().min(1).max(100),
+  username: z.string().max(30).optional(),
+  bio: z.string().max(160).optional(),
+  activity_types: z.array(z.string()).default([]),
   cuisine_prefs: z.array(z.string()).default([]),
   dietary_restrictions: z.array(z.string()).default([]),
   allergies: z.array(z.string()).default([]),
   budget_band: z.number().int().min(1).max(4).default(2),
   has_kids: z.boolean().default(false),
   has_pets: z.boolean().default(false),
+  transport_mode: z.enum(['drive', 'transit', 'walk', 'any']).default('any'),
   home_lat: z.number().optional(),
   home_lng: z.number().optional(),
 })

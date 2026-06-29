@@ -4,6 +4,9 @@ import { z } from 'zod'
 
 const CreateSchema = z.object({
   name: z.string().min(1).max(100),
+  description: z.string().max(500).optional(),
+  activity_type: z.string().default('restaurant'),
+  recommendation_mode: z.enum(['immediate', 'wait_for_all']).default('immediate'),
   date_range_start: z.string().optional(),
   date_range_end: z.string().optional(),
   anchor_lat: z.number().optional(),

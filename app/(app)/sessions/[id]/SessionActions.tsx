@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 
 interface Props {
   sessionId: string
-  action: 'generate-invite' | 'rotate-invite' | 'clear-invite' | 'email-invite' | 'remove-member' | 'generate' | 'delete' | 'availability'
+  action: 'generate-invite' | 'rotate-invite' | 'clear-invite' | 'email-invite' | 'remove-member' | 'leave' | 'generate' | 'delete' | 'availability'
   memberId?: string
 }
 
@@ -108,6 +108,23 @@ export default function SessionActions({ sessionId, action, memberId }: Props) {
         className="bg-orange-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-orange-600 disabled:opacity-50"
       >
         {loading ? '🤖 Analyzing…' : '🤖 Find the spot'}
+      </button>
+    )
+  }
+
+  if (action === 'leave') {
+    return (
+      <button
+        onClick={async () => {
+          if (!confirm('Leave this session?')) return
+          setLoading(true)
+          await fetch(`/api/sessions/${sessionId}/members/me`, { method: 'DELETE' })
+          router.push('/dashboard')
+        }}
+        disabled={loading}
+        className="text-sm text-gray-500 hover:text-red-600 transition-colors"
+      >
+        {loading ? 'Leaving…' : 'Leave session'}
       </button>
     )
   }

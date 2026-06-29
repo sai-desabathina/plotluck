@@ -5,8 +5,8 @@ import './globals.css'
 const geist = Geist({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Plotluck — Find the perfect restaurant for your group',
-  description: 'AI-powered group meal planning. Everyone votes, Plotluck decides.',
+  title: 'Outvgo — AI that plans your next outing',
+  description: 'Tell Outvgo your group preferences once. AI finds the perfect place — restaurant, activity, anything.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
