@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
@@ -23,7 +23,8 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data } = await supabase.from('personas').select('*').eq('user_id', user.id).single()
+  const svc = await createServiceClient()
+  const { data } = await svc.from('personas').select('*').eq('user_id', user.id).single()
   return NextResponse.json(data)
 }
 
@@ -36,7 +37,8 @@ export async function PUT(request: Request) {
   const parsed = Schema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
-  const { data, error } = await supabase.from('personas').upsert({
+  const svc = await createServiceClient()
+  const { data, error } = await svc.from('personas').upsert({
     ...parsed.data,
     user_id: user.id,
     updated_at: new Date().toISOString(),

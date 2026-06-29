@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
@@ -14,6 +14,7 @@ const CreateSchema = z.object({
 })
 
 export async function POST(request: Request) {
+  // Validate auth with user client
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -22,7 +23,10 @@ export async function POST(request: Request) {
   const parsed = CreateSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
-  const { data: session, error } = await supabase
+  // Use service role for writes — auth already validated above
+  const svc = await createServiceClient()
+
+  const { data: session, error } = await svc
     .from('sessions')
     .insert({ ...parsed.data, created_by: user.id })
     .select()
@@ -30,7 +34,7 @@ export async function POST(request: Request) {
 
   if (error || !session) return NextResponse.json({ error: error?.message }, { status: 500 })
 
-  await supabase.from('session_members').insert({
+  await svc.from('session_members').insert({
     session_id: session.id,
     user_id: user.id,
     role: 'organizer',
@@ -44,7 +48,8 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data } = await supabase
+  const svc = await createServiceClient()
+  const { data } = await svc
     .from('session_members')
     .select('sessions(*)')
     .eq('user_id', user.id)

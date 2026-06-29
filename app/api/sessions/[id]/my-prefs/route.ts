@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
@@ -17,13 +17,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data } = await supabase
-    .from('session_members')
-    .select('prefs_override')
-    .eq('session_id', id)
-    .eq('user_id', user.id)
-    .single()
-
+  const svc = await createServiceClient()
+  const { data } = await svc.from('session_members').select('prefs_override').eq('session_id', id).eq('user_id', user.id).single()
   return NextResponse.json(data?.prefs_override ?? null)
 }
 
@@ -34,26 +29,17 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
+  const svc = await createServiceClient()
 
-  // null body = reset to universal profile
   if (body === null) {
-    await supabase
-      .from('session_members')
-      .update({ prefs_override: null })
-      .eq('session_id', id)
-      .eq('user_id', user.id)
+    await svc.from('session_members').update({ prefs_override: null }).eq('session_id', id).eq('user_id', user.id)
     return NextResponse.json({ ok: true })
   }
 
   const parsed = Schema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
-  const { error } = await supabase
-    .from('session_members')
-    .update({ prefs_override: parsed.data })
-    .eq('session_id', id)
-    .eq('user_id', user.id)
-
+  const { error } = await svc.from('session_members').update({ prefs_override: parsed.data }).eq('session_id', id).eq('user_id', user.id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 }

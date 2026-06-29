@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { mergeConstraints, overlapSlots } from '@/lib/matching/constraints'
 import { callAgent } from '@/lib/matching/agent'
