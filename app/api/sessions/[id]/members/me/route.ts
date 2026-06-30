@@ -7,7 +7,7 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const svc = await createServiceClient()
+  const svc = createServiceClient()
   const { data: member } = await svc.from('session_members').select('role').eq('session_id', id).eq('user_id', user.id).single()
 
   if (member?.role === 'organizer') {

@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
   // Use service role for writes — auth already validated above
-  const svc = await createServiceClient()
+  const svc = createServiceClient()
 
   const { data: session, error } = await svc
     .from('sessions')
@@ -48,7 +48,7 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const svc = await createServiceClient()
+  const svc = createServiceClient()
   const { data } = await svc
     .from('session_members')
     .select('sessions(*)')

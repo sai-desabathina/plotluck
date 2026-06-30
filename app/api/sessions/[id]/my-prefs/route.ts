@@ -17,7 +17,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const svc = await createServiceClient()
+  const svc = createServiceClient()
   const { data } = await svc.from('session_members').select('prefs_override').eq('session_id', id).eq('user_id', user.id).single()
   return NextResponse.json(data?.prefs_override ?? null)
 }
@@ -29,7 +29,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
-  const svc = await createServiceClient()
+  const svc = createServiceClient()
 
   if (body === null) {
     await svc.from('session_members').update({ prefs_override: null }).eq('session_id', id).eq('user_id', user.id)

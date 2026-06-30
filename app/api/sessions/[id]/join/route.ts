@@ -14,7 +14,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const parsed = Schema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: 'Invalid token' }, { status: 400 })
 
-  const serviceClient = await createServiceClient()
+  const serviceClient = createServiceClient()
   const { data: session } = await serviceClient
     .from('sessions')
     .select('id, invite_token, invite_expires_at')

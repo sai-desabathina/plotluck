@@ -23,7 +23,7 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const svc = await createServiceClient()
+  const svc = createServiceClient()
   const { data } = await svc.from('personas').select('*').eq('user_id', user.id).single()
   return NextResponse.json(data)
 }
@@ -37,7 +37,7 @@ export async function PUT(request: Request) {
   const parsed = Schema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
-  const svc = await createServiceClient()
+  const svc = createServiceClient()
   const { data, error } = await svc.from('personas').upsert({
     ...parsed.data,
     user_id: user.id,
